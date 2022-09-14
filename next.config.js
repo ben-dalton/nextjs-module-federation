@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const config = {
   reactStrictMode: true,
   swcMinify: true,
 };
@@ -7,9 +7,6 @@ const nextConfig = {
 const NextFederationPlugin = require('@module-federation/nextjs-mf/lib/NextFederationPlugin');
 
 module.exports = (phase, { defaultConfig, isServer }) => {
-  // const serverRuntimeConfig = nextConfig.getServerProperties();
-  // const publicRuntimeConfig = nextConfig.getPublicProperties();
-
   return {
     webpack: (config) => {
       if (!isServer) {
@@ -25,25 +22,19 @@ module.exports = (phase, { defaultConfig, isServer }) => {
           querystring: false,
         };
       }
-      config.module.rules = [
-        ...config.module.rules,
-        {
-          test: /\.(graphql|gql)$/,
-          exclude: /node_modules/,
-          loader: 'graphql-tag/loader',
-        },
-      ];
+      config.module.rules = [...config.module.rules];
 
       config.plugins = config.plugins || [];
       config.plugins.push(
         new NextFederationPlugin({
-          name: 'next2',
-          // remotes: {
-          //   remote: "remote@http://localhost:3001/remoteEntry.js",
-          // },
+          name: 'nextRemote',
+          remotes: {
+            // remote: 'remote@http://localhost:3001/remoteEntry.js',
+            // next2: 'next2@http://localhost:3000/_next/static/chunks/remoteEntry.js',
+          },
           filename: 'static/chunks/remoteEntry.js',
           exposes: {
-            './button': './components/Button.js',
+            './button': './src/components/Button.js',
             // './checkout': './pages/checkout',
             // './pages-map': './pages-map.js',
           },
@@ -71,28 +62,5 @@ module.exports = (phase, { defaultConfig, isServer }) => {
     },
     // ignore linting until we settle on configuration and clean up errors
     eslint: { ignoreDuringBuilds: true },
-
-    // basePath: publicRuntimeConfig.app.basePath,
-
-    // These config are available on server only
-    // DO NOT access directly in code.
-    // Use  ```import { serveConfig } from '@rs-app/lib/config/appConfig';``` instead
-    // serverRuntimeConfig: serverRuntimeConfig,
-
-    // These config are available on both server and client
-    // DO NOT access this directly in code.
-    // Use  ```import { publicConfig } from '@rs-app/lib/config/appConfig';``` instead
-    // publicRuntimeConfig: publicRuntimeConfig,
-
-    // rewrites: async () => {
-    //   return (true || !process.env.NODE_ENV === 'production')
-    //     ? [
-    //       {
-    //         source: '/next-api/graphql',
-    //         destination: 'https://dev.roofstock.com/next-api/graphql',
-    //       },
-    //     ]
-    //     : [];
-    // }
   };
 };

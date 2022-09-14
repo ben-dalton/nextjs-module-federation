@@ -1,5 +1,3 @@
-import React from 'react';
-
 const style = {
   background: '#ffc600',
   color: '#000',
